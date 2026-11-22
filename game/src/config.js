@@ -110,12 +110,14 @@ export const LAMPS = [
   { x: 790, y: 505, lit: true },
 ];
 
-// The three heirloom lanterns Rani must steal. Each rests just in front of
-// a stall so the grab itself is the risky moment.
+// The four heirloom lanterns Rani must steal. Each rests just in front of
+// a stall so the grab itself is the risky moment. The fourth is a bonus
+// hide — the gate opens after three, but a perfect night takes all four.
 export const RELICS = [
   { x: 165, y: 185, name: 'Lampion Naga', taken: false },
   { x: 645, y: 420, name: 'Lampion Teratai', taken: false },
   { x: 405, y: 650, name: 'Lampion Bulan', taken: false },
+  { x: 250, y: 650, name: 'Lampion Kupu', taken: false },
 ];
 
 export const EXIT_RECT = { x: 868, y: 26, w: 72, h: 46 };
@@ -154,8 +156,9 @@ export const GUARD_DEFS_HEIST2 = [
   },
 ];
 
-// Three more guards who only work the third heist, when the whole market
-// is watching after two thefts in one night.
+// Two more guards who only work the third heist, when the whole market
+// is watching after two thefts in one night — plus two more for v4, so
+// the last heist has eleven guards and the frame stays crowded.
 export const GUARD_DEFS_HEIST3 = [
   ...GUARD_DEFS_HEIST2,
   {
@@ -170,12 +173,20 @@ export const GUARD_DEFS_HEIST3 = [
     name: 'Kang Dedi', color: '#5b2c6f',
     waypoints: [[60, 60], [60, 250], [280, 250], [280, 60]],
   },
+  {
+    name: 'Pak Agus', color: '#1f618d',
+    waypoints: [[440, 470], [560, 470], [560, 545], [440, 545]],
+  },
+  {
+    name: 'Mbak Dewi', color: '#6c3483',
+    waypoints: [[300, 180], [520, 180], [520, 235], [300, 235]],
+  },
 ];
 
 // Three heists in one night at the same market. Heist 1 is the night as it
-// was: 3 lanterns, 4 guards. Heist 2 re-hides the loot in new spots and
+// was: 4 lanterns, 4 guards. Heist 2 re-hides the loot in new spots and
 // adds two guards, so the second half of the night is a fresh puzzle on
-// a map the player already knows. Heist 3 hides it again and adds three
+// a map the player already knows. Heist 3 hides it again and adds five
 // more guards — by the last heist the whole market is watching. The score
 // carries across all three.
 export const HEISTS = [
@@ -190,6 +201,7 @@ export const HEISTS = [
       { x: 845, y: 130, name: 'Lampion Emas', taken: false },
       { x: 90, y: 250, name: 'Lampion Perak', taken: false },
       { x: 500, y: 700, name: 'Lampion Giok', taken: false },
+      { x: 300, y: 130, name: 'Lampion Delima', taken: false },
     ],
     guards: GUARD_DEFS_HEIST2,
   },
@@ -199,6 +211,7 @@ export const HEISTS = [
       { x: 500, y: 130, name: 'Lampion Zamrud', taken: false },
       { x: 150, y: 700, name: 'Lampion Mutiara', taken: false },
       { x: 860, y: 740, name: 'Lampion Topaz', taken: false },
+      { x: 700, y: 690, name: 'Lampion Intan', taken: false },
     ],
     guards: GUARD_DEFS_HEIST3,
   },
