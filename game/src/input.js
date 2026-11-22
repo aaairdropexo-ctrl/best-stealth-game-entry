@@ -1,6 +1,6 @@
 // input.js — keyboard and mouse, kept apart from the game rules so the
 // controls can change without touching the stealth systems.
-export function createInput(canvas, onCoinThrow, onDouse, onStart, onRestart) {
+export function createInput(canvas, onCoinThrow, onDouse, onStart, onRestart, onReplay) {
   const input = {
     keys: new Set(),
     mouse: { x: 0, y: 0 },
@@ -16,6 +16,7 @@ export function createInput(canvas, onCoinThrow, onDouse, onStart, onRestart) {
     if (key === 'shift') input.sprint = true;
     if (key === 'enter') onStart();
     if (key === 'r') onRestart();
+    if (key === 'v' && onReplay) onReplay();
     if (key === 'q') onCoinThrow(input.mouse.x, input.mouse.y);
     if (key === 'e') onDouse();
   });
