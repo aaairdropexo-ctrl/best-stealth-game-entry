@@ -76,16 +76,17 @@ function applyShot(shot) {
   state.shotKind = shot;
   for (const g of state.guards) g.stepTimer = 0.05;
   if (shot === 'cover') {
-    // Heist 2, deep in the night: 4 lanterns already stolen (3 from heist
-    // 1, 1 from heist 2), one strike on the board, score 480 — the HUD
-    // shows the whole v2 dashboard in one frame.
-    startHeist(1);
-    state.score.total = 480;
-    state.score.relics = 400;
+    // Heist 3, deep in the night: 6 lanterns already stolen (3 from heist
+    // 1, 3 from heist 2), one strike on the board, score 720 — the HUD
+    // shows the whole v3 dashboard in one frame: HEIST 3/3, 9 guards.
+    startHeist(2);
+    state.score.total = 720;
+    state.score.relics = 600;
     state.score.nearMiss = 25;
     state.score.strikes = 1;
-    state.score.time = 55;
+    state.score.time = 95;
     state.world.relics[0].taken = true;
+    state.heistTime = 18.5;
     state.player = { x: 250, y: 420 };
     // Rani already doused the lamp by the fruit stall, so her hiding
     // spot is true shadow: the HIDDEN tag shows while the cone sweeps past.
@@ -112,12 +113,12 @@ function applyShot(shot) {
     spawnRing(state.rings, 700, 470, 'guardStep', 46, 1.2);
   } else if (shot === 'win') {
     for (const r of state.world.relics) r.taken = true;
-    state.heistIndex = 1;
-    state.score.total = 1150;
-    state.score.relics = 600;
+    state.heistIndex = 2;
+    state.score.total = 1620;
+    state.score.relics = 900;
     state.score.nearMiss = 25;
-    state.score.ghost = 300;
-    state.score.time = 225;
+    state.score.ghost = 450;
+    state.score.time = 245;
     state.player = { x: 904, y: 49 };
     state.mode = 'win';
     state.time = 132.6;
@@ -150,7 +151,27 @@ function startNight() {
   if (state.mode === 'title') state.mode = 'playing';
 }
 
+// Route replay: watch the guards walk their routes before you begin.
+// No detection runs here, so the guards stay on patrol and Rani is not
+// on the floor — it is a study of the market, not a round of it.
+function toggleReplay() {
+  if (state.mode === 'title') {
+    state.mode = 'replay';
+    state.banner = { text: 'WATCH THE PATROLS', sub: 'dotted routes · dashed ghost is 3 seconds ahead · press V to go back', t: 99 };
+  } else if (state.mode === 'replay') {
+    resetNight();
+  }
+}
+
 function update(dt) {
+  if (state.mode === 'replay') {
+    // The guards walk their loops; nothing can spot anyone.
+    state.time += dt;
+    if (state.banner && state.banner.t < 90) state.banner.t -= dt;
+    for (const g of state.guards) updateGuard(g, dt, state.world, state.player, state.rings, state);
+    updateRings(state.rings, dt);
+    return;
+  }
   if (state.mode !== 'playing') return;
   state.time += dt;
   state.heistTime += dt;
@@ -221,7 +242,7 @@ function update(dt) {
         return;
       }
       state.mode = 'win';
-      announce(`You slipped out unseen with all six lanterns. Score ${state.score.total}.`);
+      announce(`You slipped out unseen with all nine lanterns. Score ${state.score.total}.`);
       return;
     }
     if (!state.banner || state.banner.t <= 0) {
@@ -308,7 +329,7 @@ function render() {
   drawRings(ctx, state.rings);
   for (const g of state.guards) drawGuard(ctx, g);
   for (const g of state.guards) drawDetectionArc(ctx, g);
-  drawPlayer();
+  if (state.mode !== 'replay') drawPlayer();
   drawBanner(ctx, state);
   drawHUD(ctx, state);
   if (state.mode === 'title') drawTitleScreen(ctx);
@@ -337,6 +358,7 @@ const input = createInput(
   () => { if (state.mode === 'playing') douseNearestLamp(state); },
   () => startNight(),
   () => resetNight(),
+  () => toggleReplay(),
 );
 
 resetNight();
