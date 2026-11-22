@@ -2,7 +2,7 @@
 // alarm, the lantern count, the gadgets, the legend, and the big in-scene
 // banners. The right panel is the game's dashboard; the scene banners are
 // its voice.
-import { HUD_X, CANVAS_H, CHASE_AT } from './config.js';
+import { HUD_X, CANVAS_H, CHASE_AT, HEISTS, MAX_STRIKES } from './config.js';
 
 export function drawHUD(ctx, state) {
   ctx.save();
@@ -26,7 +26,32 @@ export function drawHUD(ctx, state) {
   ctx.font = 'bold 13px system-ui, sans-serif';
   ctx.fillText('— Silent Stalls —', HUD_X + 18, y);
 
-  y += 34;
+  // The night's score, big: lanterns, near misses and heist bonuses add
+  // to it, strikes take from it.
+  y += 32;
+  sectionTitle(ctx, 'SCORE', HUD_X + 18, y);
+  y += 26;
+  ctx.fillStyle = '#ffd34d';
+  ctx.font = 'bold 30px system-ui, sans-serif';
+  ctx.fillText(`${state.score.total}`, HUD_X + 18, y);
+  y += 22;
+  ctx.fillStyle = '#9aa5c9';
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.fillText(`Lanterns ${state.score.relics} · Ghost +${state.score.ghost} · Time +${state.score.time}`, HUD_X + 18, y);
+
+  // Which heist of the night, and what it is called.
+  y += 30;
+  sectionTitle(ctx, 'HEIST', HUD_X + 18, y);
+  y += 22;
+  ctx.fillStyle = '#e8ecff';
+  ctx.font = 'bold 16px system-ui, sans-serif';
+  ctx.fillText(`HEIST ${state.heistIndex + 1} / 2 — ${HEISTS[state.heistIndex].name.toUpperCase()}`, HUD_X + 18, y);
+  y += 20;
+  ctx.fillStyle = '#9aa5c9';
+  ctx.font = '13px system-ui, sans-serif';
+  ctx.fillText(state.heistIndex === 0 ? '3 lanterns · 4 guards' : '3 lanterns · 6 guards — market on edge', HUD_X + 18, y);
+
+  y += 30;
   sectionTitle(ctx, 'DETECTION', HUD_X + 18, y);
   y += 22;
   const alarm = state.alarm;
@@ -40,7 +65,24 @@ export function drawHUD(ctx, state) {
   ctx.font = 'bold 12px system-ui, sans-serif';
   ctx.fillText(alarm > 60 ? 'ALARM — RUN!' : alarm > 30 ? 'SUSPICIOUS' : 'UNSEEN', HUD_X + 18, y + 32);
 
-  y += 58;
+  // Strikes: a chase costs 50 score. The bar fills red; the night never
+  // gets harder, the score just gets thinner.
+  y += 56;
+  sectionTitle(ctx, 'STRIKES', HUD_X + 18, y);
+  y += 22;
+  ctx.fillStyle = '#0a0d20';
+  ctx.fillRect(HUD_X + 18, y, 284, 14);
+  ctx.fillStyle = state.score.strikes > 0 ? '#ff5a4d' : '#2a3358';
+  ctx.fillRect(HUD_X + 18, y, 284 * Math.min(1, state.score.strikes / MAX_STRIKES), 14);
+  ctx.strokeStyle = '#2a3358';
+  ctx.strokeRect(HUD_X + 18, y, 284, 14);
+  ctx.fillStyle = state.score.strikes > 0 ? '#ff8a80' : '#9aa5c9';
+  ctx.font = 'bold 12px system-ui, sans-serif';
+  ctx.fillText(state.score.strikes > 0
+    ? `STRIKES ${state.score.strikes} / ${MAX_STRIKES}  (−${state.score.strikes * 50} score)`
+    : `STRIKES 0 / ${MAX_STRIKES} — a chase costs −50`, HUD_X + 18, y + 28);
+
+  y += 52;
   sectionTitle(ctx, 'OBJECTIVE', HUD_X + 18, y);
   y += 22;
   const taken = state.world.relics.filter((r) => r.taken).length;
@@ -52,7 +94,7 @@ export function drawHUD(ctx, state) {
   ctx.font = '13px system-ui, sans-serif';
   ctx.fillText(taken >= 3 ? '→ Reach the green EXIT gate' : 'Steal 3 heirloom lanterns', HUD_X + 18, y);
 
-  y += 40;
+  y += 36;
   sectionTitle(ctx, 'GADGETS', HUD_X + 18, y);
   y += 22;
   ctx.fillStyle = '#e8ecff';
@@ -63,47 +105,29 @@ export function drawHUD(ctx, state) {
   y += 22;
   ctx.fillStyle = '#9aa5c9';
   ctx.font = '13px system-ui, sans-serif';
-  ctx.fillText(`⏱ Night time  ${state.time.toFixed(0)}s`, HUD_X + 18, y);
+  ctx.fillText(`⏱ Heist ${state.heistTime.toFixed(0)}s · Night ${state.time.toFixed(0)}s`, HUD_X + 18, y);
 
-  y += 40;
+  y += 36;
   sectionTitle(ctx, 'LEGEND', HUD_X + 18, y);
   y += 20;
   legendRow(ctx, HUD_X + 18, y, 'rgba(255,190,80,0.45)', 'Vision cone — seen here');
-  y += 22;
+  y += 20;
   legendRow(ctx, HUD_X + 18, y, 'rgba(235,240,255,0.7)', 'Dotted line — patrol route');
-  y += 22;
+  y += 20;
   legendRow(ctx, HUD_X + 18, y, '#1a2242', 'Dark floor — SAFE shadow');
-  y += 22;
+  y += 20;
   legendRow(ctx, HUD_X + 18, y, 'rgba(255,176,66,0.7)', 'Amber floor — EXPOSED light');
-  y += 22;
+  y += 20;
   legendRow(ctx, HUD_X + 18, y, null, '○ ring — a footstep / sound', true);
-  y += 22;
+  y += 20;
   legendRow(ctx, HUD_X + 18, y, null, 'Dashed ○ — guard in 3 seconds', true);
 
-  y += 40;
-  sectionTitle(ctx, 'CONTROLS', HUD_X + 18, y);
-  y += 20;
-  ctx.fillStyle = '#9aa5c9';
-  ctx.font = '13px system-ui, sans-serif';
-  const lines = [
-    'WASD / Arrows — sneak',
-    'SHIFT — sprint (loud!)',
-    'Q / Click — throw a coin',
-    'E — douse a lamp',
-    'R — restart night',
-    'ENTER — start',
-  ];
-  for (const line of lines) {
-    ctx.fillText(line, HUD_X + 18, y);
-    y += 20;
-  }
-
-  y += 16;
+  y += 30;
   ctx.fillStyle = '#5d6b94';
   ctx.font = '12px system-ui, sans-serif';
   ctx.fillText('Rani the lantern thief —', HUD_X + 18, y);
   y += 18;
-  ctx.fillText('one quiet night at the market.', HUD_X + 18, y);
+  ctx.fillText('one quiet night, two heists.', HUD_X + 18, y);
   ctx.restore();
 }
 
@@ -168,11 +192,15 @@ export function drawTitleScreen(ctx) {
   ctx.fillText('— Silent Stalls —', 480, 292);
   ctx.font = '17px system-ui, sans-serif';
   ctx.fillStyle = '#c6cfe8';
-  ctx.fillText('Rani must steal the 3 heirloom lanterns and slip out', 480, 350);
-  ctx.fillText('through the green gate — unseen, unheard, unhurried.', 480, 376);
+  ctx.fillText('Rani must steal 6 heirloom lanterns across two heists and slip', 480, 350);
+  ctx.fillText('out through the green gate — unseen, unheard, unhurried.', 480, 376);
   ctx.fillStyle = '#ffd34d';
   ctx.font = 'bold 18px system-ui, sans-serif';
   ctx.fillText('Learn the patrols. Walk the shadows. Mind the rings.', 480, 430);
+  ctx.fillStyle = '#e8ecff';
+  ctx.font = '17px system-ui, sans-serif';
+  ctx.fillText('Score: +100 a lantern, +25 a near miss, +150 a ghost heist —', 480, 462);
+  ctx.fillText('a chase costs one strike and −50.', 480, 486);
   ctx.fillStyle = '#e8ecff';
   ctx.font = 'bold 20px system-ui, sans-serif';
   ctx.fillText('Press ENTER to begin the night', 480, 500);
@@ -187,13 +215,28 @@ export function drawEndScreen(ctx, state) {
   ctx.fillStyle = 'rgba(8,10,24,0.72)';
   ctx.fillRect(0, 0, 960, 800);
   ctx.textAlign = 'center';
+  const taken = state.world.relics.filter((r) => r.taken).length;
+  const totalTaken = state.heistIndex * 3 + taken;
   if (state.mode === 'win') {
+    const ghost = state.score.strikes === 0;
     ctx.fillStyle = '#2ecc71';
     ctx.font = 'bold 52px system-ui, sans-serif';
-    ctx.fillText('GHOST — UNSEEN!', 480, 300);
+    ctx.fillText(ghost ? 'GHOST — UNSEEN!' : 'CLEAN GETAWAY!', 480, 280);
     ctx.fillStyle = '#e8ecff';
     ctx.font = '20px system-ui, sans-serif';
-    ctx.fillText('All 3 lanterns stolen. No guard ever knew you were there.', 480, 350);
+    ctx.fillText(ghost
+      ? 'All 6 lanterns stolen. No guard ever knew you were there.'
+      : 'All 6 lanterns stolen — the market never caught you.', 480, 330);
+    ctx.fillStyle = '#ffd34d';
+    ctx.font = 'bold 34px system-ui, sans-serif';
+    ctx.fillText(`SCORE  ${state.score.total}`, 480, 392);
+    ctx.font = '17px system-ui, sans-serif';
+    ctx.fillStyle = '#e8ecff';
+    ctx.fillText(`Lanterns ${state.score.relics} · Ghost +${state.score.ghost} · Time +${state.score.time} · Near-miss +${state.score.nearMiss}`, 480, 432);
+    ctx.fillStyle = state.score.strikes > 0 ? '#ff8a80' : '#9aa5c9';
+    ctx.fillText(state.score.strikes > 0
+      ? `Strikes ${state.score.strikes} × −50`
+      : 'No strikes — a perfect night', 480, 458);
   } else {
     ctx.fillStyle = '#ff5a4d';
     ctx.font = 'bold 52px system-ui, sans-serif';
@@ -201,13 +244,12 @@ export function drawEndScreen(ctx, state) {
     ctx.fillStyle = '#e8ecff';
     ctx.font = '20px system-ui, sans-serif';
     ctx.fillText('A guard laid hands on Rani under the lanterns.', 480, 350);
+    ctx.font = '18px system-ui, sans-serif';
+    ctx.fillStyle = '#ffd34d';
+    ctx.fillText(`Score ${state.score.total} · Lanterns ${totalTaken} / 6 · Heist ${state.heistIndex + 1} / 2 · Time ${state.time.toFixed(1)}s`, 480, 400);
   }
-  const taken = state.world.relics.filter((r) => r.taken).length;
-  ctx.font = '18px system-ui, sans-serif';
-  ctx.fillStyle = '#ffd34d';
-  ctx.fillText(`Lanterns ${taken} / 3   ·   Time ${state.time.toFixed(1)}s`, 480, 400);
   ctx.fillStyle = '#e8ecff';
   ctx.font = 'bold 18px system-ui, sans-serif';
-  ctx.fillText('Press R to try the night again', 480, 460);
+  ctx.fillText('Press R to try the night again', 480, 500);
   ctx.restore();
 }
