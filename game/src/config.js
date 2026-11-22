@@ -154,10 +154,30 @@ export const GUARD_DEFS_HEIST2 = [
   },
 ];
 
-// Two heists in one night at the same market. Heist 1 is the night as it
+// Three more guards who only work the third heist, when the whole market
+// is watching after two thefts in one night.
+export const GUARD_DEFS_HEIST3 = [
+  ...GUARD_DEFS_HEIST2,
+  {
+    name: 'Pak Budi', color: '#16a085',
+    waypoints: [[180, 640], [380, 640], [380, 760], [180, 760]],
+  },
+  {
+    name: 'Mbak Sinta', color: '#d35400',
+    waypoints: [[620, 60], [880, 60], [880, 170], [620, 170]],
+  },
+  {
+    name: 'Kang Dedi', color: '#5b2c6f',
+    waypoints: [[60, 60], [60, 250], [280, 250], [280, 60]],
+  },
+];
+
+// Three heists in one night at the same market. Heist 1 is the night as it
 // was: 3 lanterns, 4 guards. Heist 2 re-hides the loot in new spots and
 // adds two guards, so the second half of the night is a fresh puzzle on
-// a map the player already knows. The score carries across both.
+// a map the player already knows. Heist 3 hides it again and adds three
+// more guards — by the last heist the whole market is watching. The score
+// carries across all three.
 export const HEISTS = [
   {
     name: 'Lampion Pusaka',
@@ -172,5 +192,14 @@ export const HEISTS = [
       { x: 500, y: 700, name: 'Lampion Giok', taken: false },
     ],
     guards: GUARD_DEFS_HEIST2,
+  },
+  {
+    name: 'Lampion Zamrud',
+    relics: [
+      { x: 500, y: 130, name: 'Lampion Zamrud', taken: false },
+      { x: 150, y: 700, name: 'Lampion Mutiara', taken: false },
+      { x: 860, y: 740, name: 'Lampion Topaz', taken: false },
+    ],
+    guards: GUARD_DEFS_HEIST3,
   },
 ];
