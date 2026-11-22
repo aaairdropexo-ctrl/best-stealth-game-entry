@@ -26,6 +26,7 @@ export function createGuards(defs) {
       investigateWait: 0,
       stepTimer: 0,
       pauseTimer: 0,
+      chaseCounted: false, // true while this chase already cost a strike
     };
   });
 }
