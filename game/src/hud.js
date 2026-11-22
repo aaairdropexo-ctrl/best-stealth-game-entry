@@ -45,11 +45,15 @@ export function drawHUD(ctx, state) {
   y += 22;
   ctx.fillStyle = '#e8ecff';
   ctx.font = 'bold 16px system-ui, sans-serif';
-  ctx.fillText(`HEIST ${state.heistIndex + 1} / 2 — ${HEISTS[state.heistIndex].name.toUpperCase()}`, HUD_X + 18, y);
+  ctx.fillText(`HEIST ${state.heistIndex + 1} / ${HEISTS.length} — ${HEISTS[state.heistIndex].name.toUpperCase()}`, HUD_X + 18, y);
   y += 20;
   ctx.fillStyle = '#9aa5c9';
   ctx.font = '13px system-ui, sans-serif';
-  ctx.fillText(state.heistIndex === 0 ? '3 lanterns · 4 guards' : '3 lanterns · 6 guards — market on edge', HUD_X + 18, y);
+  ctx.fillText([
+    '3 lanterns · 4 guards',
+    '3 lanterns · 6 guards — market on edge',
+    '3 lanterns · 9 guards — the market is watching',
+  ][state.heistIndex], HUD_X + 18, y);
 
   y += 30;
   sectionTitle(ctx, 'DETECTION', HUD_X + 18, y);
@@ -127,7 +131,7 @@ export function drawHUD(ctx, state) {
   ctx.font = '12px system-ui, sans-serif';
   ctx.fillText('Rani the lantern thief —', HUD_X + 18, y);
   y += 18;
-  ctx.fillText('one quiet night, two heists.', HUD_X + 18, y);
+  ctx.fillText('one quiet night, three heists.', HUD_X + 18, y);
   ctx.restore();
 }
 
@@ -192,7 +196,7 @@ export function drawTitleScreen(ctx) {
   ctx.fillText('— Silent Stalls —', 480, 292);
   ctx.font = '17px system-ui, sans-serif';
   ctx.fillStyle = '#c6cfe8';
-  ctx.fillText('Rani must steal 6 heirloom lanterns across two heists and slip', 480, 350);
+  ctx.fillText('Rani must steal 9 heirloom lanterns across three heists and slip', 480, 350);
   ctx.fillText('out through the green gate — unseen, unheard, unhurried.', 480, 376);
   ctx.fillStyle = '#ffd34d';
   ctx.font = 'bold 18px system-ui, sans-serif';
@@ -203,10 +207,13 @@ export function drawTitleScreen(ctx) {
   ctx.fillText('a chase costs one strike and −50.', 480, 486);
   ctx.fillStyle = '#e8ecff';
   ctx.font = 'bold 20px system-ui, sans-serif';
-  ctx.fillText('Press ENTER to begin the night', 480, 500);
+  ctx.fillText('Press ENTER to begin the night', 480, 516);
   ctx.font = '14px system-ui, sans-serif';
   ctx.fillStyle = '#9aa5c9';
-  ctx.fillText('WASD move · SHIFT sprint (loud) · Q throw coin · E douse lamp · R restart', 480, 540);
+  ctx.fillText('WASD move · SHIFT sprint (loud) · Q throw coin · E douse lamp · R restart', 480, 556);
+  ctx.fillStyle = '#ffd34d';
+  ctx.font = 'bold 14px system-ui, sans-serif';
+  ctx.fillText('V — watch the patrols replay before you begin', 480, 582);
   ctx.restore();
 }
 
@@ -225,8 +232,8 @@ export function drawEndScreen(ctx, state) {
     ctx.fillStyle = '#e8ecff';
     ctx.font = '20px system-ui, sans-serif';
     ctx.fillText(ghost
-      ? 'All 6 lanterns stolen. No guard ever knew you were there.'
-      : 'All 6 lanterns stolen — the market never caught you.', 480, 330);
+      ? 'All 9 lanterns stolen. No guard ever knew you were there.'
+      : 'All 9 lanterns stolen — the market never caught you.', 480, 330);
     ctx.fillStyle = '#ffd34d';
     ctx.font = 'bold 34px system-ui, sans-serif';
     ctx.fillText(`SCORE  ${state.score.total}`, 480, 392);
@@ -246,7 +253,7 @@ export function drawEndScreen(ctx, state) {
     ctx.fillText('A guard laid hands on Rani under the lanterns.', 480, 350);
     ctx.font = '18px system-ui, sans-serif';
     ctx.fillStyle = '#ffd34d';
-    ctx.fillText(`Score ${state.score.total} · Lanterns ${totalTaken} / 6 · Heist ${state.heistIndex + 1} / 2 · Time ${state.time.toFixed(1)}s`, 480, 400);
+    ctx.fillText(`Score ${state.score.total} · Lanterns ${totalTaken} / 9 · Heist ${state.heistIndex + 1} / 3 · Time ${state.time.toFixed(1)}s`, 480, 400);
   }
   ctx.fillStyle = '#e8ecff';
   ctx.font = 'bold 18px system-ui, sans-serif';
