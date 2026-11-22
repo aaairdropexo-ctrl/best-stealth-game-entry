@@ -37,6 +37,18 @@ export const GUARD_STEP_INTERVAL = 0.5;
 export const PLAYER_STEP_SNEAK = 0.55;
 export const PLAYER_STEP_SPRINT = 0.32;
 
+// The night's score: a lantern is worth 100, a near miss 25, a clean
+// (ghost) heist 150, and every second under the time cap is worth 1.
+// A strike — a guard entering chase — costs 50. Strikes only move the
+// score, never the guards, so they deepen the night without making it
+// harder to win.
+export const RELIC_POINTS = 100;
+export const NEAR_MISS_POINTS = 25;
+export const GHOST_BONUS = 150;
+export const TIME_BONUS_CAP = 120;
+export const STRIKE_PENALTY = 50;
+export const MAX_STRIKES = 3;
+
 export const COLORS = {
   night: '#12172a',
   tileShadowA: '#1a2242',
@@ -125,5 +137,40 @@ export const GUARD_DEFS = [
   {
     name: 'Mbak Rini', color: '#c27a1e',
     waypoints: [[560, 520], [880, 520], [880, 700], [560, 700]],
+  },
+];
+
+// Two extra guards who only work the second heist, when the market is
+// already on edge after the first theft.
+export const GUARD_DEFS_HEIST2 = [
+  ...GUARD_DEFS,
+  {
+    name: 'Pak Tono', color: '#1e8449',
+    waypoints: [[120, 300], [320, 300], [320, 480], [120, 480]],
+  },
+  {
+    name: 'Bu Ratna', color: '#7d3c98',
+    waypoints: [[560, 180], [880, 180], [880, 300], [560, 300]],
+  },
+];
+
+// Two heists in one night at the same market. Heist 1 is the night as it
+// was: 3 lanterns, 4 guards. Heist 2 re-hides the loot in new spots and
+// adds two guards, so the second half of the night is a fresh puzzle on
+// a map the player already knows. The score carries across both.
+export const HEISTS = [
+  {
+    name: 'Lampion Pusaka',
+    relics: RELICS,
+    guards: GUARD_DEFS,
+  },
+  {
+    name: 'Lampion Emas',
+    relics: [
+      { x: 845, y: 130, name: 'Lampion Emas', taken: false },
+      { x: 90, y: 250, name: 'Lampion Perak', taken: false },
+      { x: 500, y: 700, name: 'Lampion Giok', taken: false },
+    ],
+    guards: GUARD_DEFS_HEIST2,
   },
 ];
