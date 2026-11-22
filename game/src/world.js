@@ -3,10 +3,10 @@
 // asks about (is this point blocked? can this guard see that point?).
 import {
   PLAY_W, PLAY_H, TILE, LAMP_LIGHT_RADIUS,
-  STALLS, CRATES, CART, LAMPS, RELICS, EXIT_RECT,
+  STALLS, CRATES, CART, LAMPS, HEISTS, EXIT_RECT,
 } from './config.js';
 
-export function buildWorld() {
+export function buildWorld(heistIndex = 0) {
   const obstacles = [];
   for (const s of STALLS) obstacles.push({ ...s, kind: 'stall' });
   for (const c of CRATES) obstacles.push({ ...c, kind: 'crate' });
@@ -14,7 +14,7 @@ export function buildWorld() {
   return {
     obstacles,
     lamps: LAMPS.map((l) => ({ ...l })),
-    relics: RELICS.map((r) => ({ ...r })),
+    relics: HEISTS[heistIndex].relics.map((r) => ({ ...r })),
     exit: { ...EXIT_RECT },
   };
 }
